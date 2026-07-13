@@ -32,21 +32,17 @@
 <script src="admin-data.js"></script>
 <script src="../js/templates.js"></script>
 <script>
-  AdminShell.exigirLogin('kits');
-
   const params = new URLSearchParams(window.location.search);
   const slugKit = params.get('kit');
   let dadosCompletos = null;
 
   if (!slugKit) {
     document.getElementById('painel-lista').innerHTML = '<p>Nenhum kit informado na URL.</p>';
+    AdminShell.exigirLogin('kits');
   } else {
     document.getElementById('link-novo-experimento').href = `./experimento-editar.html?kit=${slugKit}`;
-    window.addEventListener('DOMContentLoaded', () => {
-      netlifyIdentity.on('init', async (user) => {
-        if (!user) return;
-        await carregarLista();
-      });
+    AdminShell.exigirLogin('kits', async (user) => {
+      await carregarLista();
     });
   }
 

@@ -57,8 +57,6 @@
 <script src="admin-data.js"></script>
 <script src="../js/templates.js"></script>
 <script>
-  AdminShell.exigirLogin('kits');
-
   const params = new URLSearchParams(window.location.search);
   const slugKit = params.get('kit');
   const slugExpExistente = params.get('exp');
@@ -71,12 +69,10 @@
 
   if (!slugKit) {
     document.querySelector('.admin-main').innerHTML = '<p>Nenhum kit informado na URL.</p>';
+    AdminShell.exigirLogin('kits');
   } else {
-    window.addEventListener('DOMContentLoaded', () => {
-      netlifyIdentity.on('init', async (user) => {
-        if (!user) return;
-        await carregarFormulario();
-      });
+    AdminShell.exigirLogin('kits', async (user) => {
+      await carregarFormulario();
     });
   }
 

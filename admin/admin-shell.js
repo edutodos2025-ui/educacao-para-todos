@@ -53,14 +53,17 @@ const AdminShell = (() => {
     toast._timeout = setTimeout(() => toast.classList.remove('show'), 4200);
   }
 
-  function exigirLogin(idAtivo) {
+  function exigirLogin(idAtivo, aoAutenticar) {
     document.body.style.visibility = 'hidden';
+    let jaResolvido = false;
 
     function aoIniciar(user) {
+      if (jaResolvido) return; // evita rodar duas vezes (init + checagem manual)
       if (!user) {
         window.location.href = './login.html';
         return;
       }
+      jaResolvido = true;
       document.body.style.visibility = 'visible';
       montarSidebar(idAtivo);
       const box = document.getElementById('admin-user-box');
@@ -70,24 +73,29 @@ const AdminShell = (() => {
           netlifyIdentity.logout();
         });
       }
+      // Só agora que a sidebar está montada e o usuário confirmado,
+      // avisamos a página específica (kits, experimentos, etc.) que
+      // ela já pode carregar seus próprios dados com segurança.
+      if (typeof aoAutenticar === 'function') aoAutenticar(user);
     }
 
     function registrarListeners() {
       netlifyIdentity.on('init', aoIniciar);
       netlifyIdentity.on('logout', () => { window.location.href = './login.html'; });
 
-      // Se o widget já tinha um usuário quando este script rodou, o evento
-      // "init" pode já ter disparado antes de nos inscrevermos — resolvemos
-      // isso checando o usuário atual diretamente também.
+      // O evento "init" só dispara uma vez, logo após o widget carregar.
+      // Se já perdemos essa janela (comum quando o usuário já está
+      // logado ao abrir a página), currentUser() resolve na hora.
       const atual = netlifyIdentity.currentUser();
       if (atual) {
         aoIniciar(atual);
       } else {
-        // Dá um tempo curto para o "init" do widget disparar antes de
-        // desistir e mandar para o login (evita falso-negativo de login).
         setTimeout(() => {
-          const aindaSemUsuario = !netlifyIdentity.currentUser();
-          if (aindaSemUsuario && document.body.style.visibility === 'hidden') {
+          if (jaResolvido) return;
+          const usuario = netlifyIdentity.currentUser();
+          if (usuario) {
+            aoIniciar(usuario);
+          } else {
             window.location.href = './login.html';
           }
         }, 1500);

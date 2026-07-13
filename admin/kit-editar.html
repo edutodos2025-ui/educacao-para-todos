@@ -82,19 +82,14 @@
 <script src="admin-data.js"></script>
 <script src="../js/templates.js"></script>
 <script>
-  AdminShell.exigirLogin('kits');
-
   const params = new URLSearchParams(window.location.search);
   const slugExistente = params.get('slug');
   let dadosCompletos = null;
   let slugEditadoManualmente = false;
   let imagemBase64Pendente = null;
 
-  window.addEventListener('DOMContentLoaded', () => {
-    netlifyIdentity.on('init', async (user) => {
-      if (!user) return;
-      await carregarFormulario();
-    });
+  AdminShell.exigirLogin('kits', async (user) => {
+    await carregarFormulario();
   });
 
   function gerarSlug(texto) {

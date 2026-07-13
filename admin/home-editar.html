@@ -43,25 +43,21 @@
 <script src="admin-shell.js"></script>
 <script src="admin-data.js"></script>
 <script>
-  AdminShell.exigirLogin('home');
   let dadosSite = null;
 
-  window.addEventListener('DOMContentLoaded', () => {
-    netlifyIdentity.on('init', async (user) => {
-      if (!user) return;
-      dadosSite = await AdminData.lerJSON('data/site.json');
-      document.getElementById('campo-hero-titulo').value = dadosSite.home.heroTitulo;
-      document.getElementById('campo-hero-subtitulo').value = dadosSite.home.heroSubtitulo;
-      document.getElementById('campo-intro').value = dadosSite.home.introTexto;
+  AdminShell.exigirLogin('home', async (user) => {
+    dadosSite = await AdminData.lerJSON('data/site.json');
+    document.getElementById('campo-hero-titulo').value = dadosSite.home.heroTitulo;
+    document.getElementById('campo-hero-subtitulo').value = dadosSite.home.heroSubtitulo;
+    document.getElementById('campo-intro').value = dadosSite.home.introTexto;
 
-      const mvvDiv = document.getElementById('mvv-campos');
-      mvvDiv.innerHTML = dadosSite.home.missaoVisaoValores.map((item, i) => `
-        <div class="form-group">
-          <label>${item.titulo}</label>
-          <textarea class="form-control campo-mvv" data-i="${i}" rows="2">${item.texto}</textarea>
-        </div>
-      `).join('');
-    });
+    const mvvDiv = document.getElementById('mvv-campos');
+    mvvDiv.innerHTML = dadosSite.home.missaoVisaoValores.map((item, i) => `
+      <div class="form-group">
+        <label>${item.titulo}</label>
+        <textarea class="form-control campo-mvv" data-i="${i}" rows="2">${item.texto}</textarea>
+      </div>
+    `).join('');
   });
 
   document.getElementById('form-home').addEventListener('submit', async (e) => {

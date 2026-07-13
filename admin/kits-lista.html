@@ -28,13 +28,8 @@
 <script src="admin-shell.js"></script>
 <script src="admin-data.js"></script>
 <script>
-  AdminShell.exigirLogin('kits');
-
-  window.addEventListener('DOMContentLoaded', () => {
-    netlifyIdentity.on('init', async (user) => {
-      if (!user) return;
-      await carregarLista();
-    });
+  AdminShell.exigirLogin('kits', async (user) => {
+    await carregarLista();
   });
 
   async function carregarLista() {

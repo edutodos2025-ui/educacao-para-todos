@@ -28,15 +28,10 @@
 <script src="admin-shell.js"></script>
 <script src="admin-data.js"></script>
 <script>
-  AdminShell.exigirLogin('paginas');
-
   let dadosCompletos = null;
 
-  window.addEventListener('DOMContentLoaded', () => {
-    netlifyIdentity.on('init', async (user) => {
-      if (!user) return;
-      await carregarLista();
-    });
+  AdminShell.exigirLogin('paginas', async (user) => {
+    await carregarLista();
   });
 
   async function carregarLista() {

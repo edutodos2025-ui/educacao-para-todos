@@ -51,23 +51,16 @@
 <script src="admin-shell.js"></script>
 <script src="admin-data.js"></script>
 <script>
-  AdminShell.exigirLogin('inicio');
-
-  window.addEventListener('DOMContentLoaded', () => {
-    if (window.netlifyIdentity) {
-      netlifyIdentity.on('init', async (user) => {
-        if (!user) return;
-        try {
-          const kits = await AdminData.lerJSON('data/kits.json');
-          const site = await AdminData.lerJSON('data/site.json');
-          const totalExperimentos = (kits?.kits || []).reduce((acc, k) => acc + (k.experimentos?.length || 0), 0);
-          document.getElementById('stat-kits').textContent = kits?.kits?.length || 0;
-          document.getElementById('stat-experimentos').textContent = totalExperimentos;
-          document.getElementById('stat-paginas').textContent = site?.menu?.length || 0;
-        } catch (err) {
-          console.error(err);
-        }
-      });
+  AdminShell.exigirLogin('inicio', async (user) => {
+    try {
+      const kits = await AdminData.lerJSON('data/kits.json');
+      const site = await AdminData.lerJSON('data/site.json');
+      const totalExperimentos = (kits?.kits || []).reduce((acc, k) => acc + (k.experimentos?.length || 0), 0);
+      document.getElementById('stat-kits').textContent = kits?.kits?.length || 0;
+      document.getElementById('stat-experimentos').textContent = totalExperimentos;
+      document.getElementById('stat-paginas').textContent = site?.menu?.length || 0;
+    } catch (err) {
+      console.error(err);
     }
   });
 </script>

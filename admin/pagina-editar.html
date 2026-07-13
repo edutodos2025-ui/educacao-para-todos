@@ -55,18 +55,13 @@
 <script src="../js/templates.js"></script>
 <script src="../js/templates-pagina.js"></script>
 <script>
-  AdminShell.exigirLogin('paginas');
-
   const params = new URLSearchParams(window.location.search);
   const hrefExistente = params.get('href');
   let dadosCompletos = null;
   let blocos = [];
 
-  window.addEventListener('DOMContentLoaded', () => {
-    netlifyIdentity.on('init', async (user) => {
-      if (!user) return;
-      await carregarFormulario();
-    });
+  AdminShell.exigirLogin('paginas', async (user) => {
+    await carregarFormulario();
   });
 
   function gerarSlug(texto) {
