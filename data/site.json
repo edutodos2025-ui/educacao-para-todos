@@ -30,18 +30,6 @@
           "conteudo": "Curiosidades científicas para despertar ainda mais interesse pela ciência."
         }
       ]
-    },
-    {
-      "label": "Aprenda com seus colegas",
-      "href": "/aprenda-com-colegas.html",
-      "ordem": 7,
-      "fixo": false,
-      "blocos": [
-        {
-          "tipo": "texto",
-          "conteudo": "Um espaço para compartilhar descobertas e projetos entre estudantes."
-        }
-      ]
     }
   ],
   "home": {
