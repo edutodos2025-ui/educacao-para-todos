@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aventuras na Ciência — Educação científica para todos</title>
+<meta name="description" content="Kits educativos e metodologias ativas para transformar o ensino de ciências.">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <h1 id="hero-titulo">Transformando a Educação Científica</h1>
+      <p class="lead" id="hero-subtitulo">Conheça nossa missão de democratizar o acesso à educação científica através de kits educativos inovadores e metodologias ativas.</p>
+      <div class="hero-actions">
+        <a href="/kits.html" class="btn btn-white">🧪 Explorar Kits Educativos</a>
+        <a href="/apoio-professor.html" class="btn btn-outline">🧑‍🏫 Apoio ao Professor</a>
+      </div>
+    </div>
+    <div class="hero-logo">
+      <!-- logo grande decorativo -->
+      <svg viewBox="0 0 64 64" width="130" height="130" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="32" cy="32" r="11" fill="#93c5fd"/>
+        <path d="M20 22 C24 26 24 38 20 42" fill="#86efac"/>
+        <path d="M42 20 C40 26 44 36 40 44" fill="#86efac"/>
+        <ellipse cx="32" cy="32" rx="27" ry="12" stroke="#ffffff" stroke-width="3" fill="none" transform="rotate(-25 32 32)"/>
+        <ellipse cx="32" cy="32" rx="27" ry="12" stroke="#ffffff" stroke-width="3" fill="none" transform="rotate(25 32 32)"/>
+      </svg>
+      <div class="wordmark">Aventuras<br>na Ciência</div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <p class="section-subtitle" style="max-width:80ch;" id="intro-texto">
+      Este projeto é um convite para que todos os estudantes e professores, independentemente de sua origem ou condição social,
+      tenham acesso a um ensino de Ciências que vá além da teoria.
+    </p>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="grid-3" id="mvv-grid">
+      <!-- Missão / Visão / Valores injetados via JS -->
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container text-center">
+    <h2 class="section-title">Pronto para começar?</h2>
+    <p class="section-subtitle">Explore nossos kits educativos e leve experimentos práticos para a sua sala de aula.</p>
+    <a href="/kits.html" class="btn btn-primary">Ver Kits Educativos</a>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/js/layout.js"></script>
+<script>
+  const icones = ['🎯', '👁️', '🤝'];
+  fetch('/data/site.json')
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('hero-titulo').textContent = data.home.heroTitulo;
+      document.getElementById('hero-subtitulo').textContent = data.home.heroSubtitulo;
+      document.getElementById('intro-texto').textContent = data.home.introTexto;
+
+      const grid = document.getElementById('mvv-grid');
+      grid.innerHTML = data.home.missaoVisaoValores.map((item, i) => `
+        <div class="card text-center">
+          <div style="font-size:1.8rem;margin-bottom:12px;">${icones[i] || '⭐'}</div>
+          <h3>${item.titulo}</h3>
+          <p style="color:#6b7280;">${item.texto}</p>
+        </div>
+      `).join('');
+    })
+    .catch(err => console.error('Erro ao carregar dados da home:', err));
+</script>
+</body>
+</html>

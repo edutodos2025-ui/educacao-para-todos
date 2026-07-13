@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editar Kit — Painel</title>
+<link rel="stylesheet" href="admin.css">
+<script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar-root"></div>
+
+<main class="admin-main">
+  <div class="admin-header">
+    <div>
+      <h1 id="titulo-tela">Novo Kit</h1>
+      <p class="subtitle">Preencha as informações do kit educativo. Os experimentos são adicionados depois de salvar.</p>
+    </div>
+    <a href="./kits-lista.html" class="btn-admin btn-admin-secondary">← Voltar</a>
+  </div>
+
+  <form class="admin-panel" id="form-kit">
+    <div class="form-group">
+      <label>Título do Kit</label>
+      <input class="form-control" id="campo-titulo" required placeholder="Ex: Kit Química - Reações do dia a dia">
+      <div class="hint">Aparece no card da listagem e no topo da página do kit.</div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>Identificador da URL (slug)</label>
+        <input class="form-control" id="campo-slug" required placeholder="ex: quimica-reacoes-do-dia-a-dia">
+        <div class="hint">Gerado automaticamente a partir do título. Só use letras minúsculas, números e hífen.</div>
+      </div>
+      <div class="form-group">
+        <label>Faixa etária</label>
+        <input class="form-control" id="campo-faixa" placeholder="Ex: Alunos acima de 10 anos">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Resumo curto (aparece no card da listagem)</label>
+      <textarea class="form-control" id="campo-resumo" rows="2" placeholder="Uma frase que resume o kit."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Texto "Sobre este Kit" (aparece na página do kit)</label>
+      <textarea class="form-control" id="campo-sobre" rows="3"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Imagem de capa</label>
+      <input type="file" class="form-control" id="campo-imagem-arquivo" accept="image/*">
+      <div class="hint">Ou cole o link de uma imagem já hospedada:</div>
+      <input class="form-control" id="campo-imagem-url" placeholder="https://..." style="margin-top:8px;">
+      <div id="preview-imagem" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="form-group">
+      <label>Recursos inclusos</label>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <label style="font-weight:400;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="materiais" class="chk-recurso"> Materiais</label>
+        <label style="font-weight:400;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="experimentos" class="chk-recurso"> Experimentos</label>
+        <label style="font-weight:400;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="video" class="chk-recurso"> Vídeo</label>
+        <label style="font-weight:400;display:flex;align-items:center;gap:6px;"><input type="checkbox" value="manual" class="chk-recurso"> Manual PDF</label>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Materiais inclusos (um por linha)</label>
+      <textarea class="form-control" id="campo-materiais" rows="4" placeholder="Placa Arduino Uno&#10;Cabo USB&#10;Jumper"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <button type="submit" class="btn-admin btn-admin-primary">💾 Salvar Kit</button>
+    </div>
+  </form>
+</main>
+
+<script src="admin-shell.js"></script>
+<script src="admin-data.js"></script>
+<script src="../js/templates.js"></script>
+<script>
+  AdminShell.exigirLogin('kits');
+
+  const params = new URLSearchParams(window.location.search);
+  const slugExistente = params.get('slug');
+  let dadosCompletos = null;
+  let slugEditadoManualmente = false;
+  let imagemBase64Pendente = null;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    netlifyIdentity.on('init', async (user) => {
+      if (!user) return;
+      await carregarFormulario();
+    });
+  });
+
+  function gerarSlug(texto) {
+    return texto.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+  }
+
+  document.getElementById('campo-titulo').addEventListener('input', (e) => {
+    if (!slugEditadoManualmente) {
+      document.getElementById('campo-slug').value = gerarSlug(e.target.value);
+    }
+  });
+  document.getElementById('campo-slug').addEventListener('input', () => { slugEditadoManualmente = true; });
+
+  document.getElementById('campo-imagem-arquivo').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    imagemBase64Pendente = { nome: file.name, tipo: file.type || 'image/jpeg', base64: await AdminData.arquivoParaBase64(file) };
+    document.getElementById('preview-imagem').innerHTML = `<img src="data:${imagemBase64Pendente.tipo};base64,${imagemBase64Pendente.base64}" style="max-width:200px;border-radius:8px;">`;
+    document.getElementById('campo-imagem-url').value = '';
+  });
+
+  async function carregarFormulario() {
+    try {
+      dadosCompletos = await AdminData.lerJSON('data/kits.json') || { kits: [] };
+
+      if (slugExistente) {
+        const kit = dadosCompletos.kits.find(k => k.slug === slugExistente);
+        if (!kit) { AdminShell.mostrarToast('Kit não encontrado.', 'erro'); return; }
+
+        document.getElementById('titulo-tela').textContent = 'Editar Kit';
+        document.getElementById('campo-titulo').value = kit.titulo || '';
+        document.getElementById('campo-slug').value = kit.slug || '';
+        document.getElementById('campo-slug').disabled = true;
+        document.getElementById('campo-slug').parentElement.querySelector('.hint').textContent = 'O identificador não pode ser alterado após a criação, para não quebrar links já publicados.';
+        slugEditadoManualmente = true;
+        document.getElementById('campo-faixa').value = kit.faixaEtaria || '';
+        document.getElementById('campo-resumo').value = kit.resumoCurto || '';
+        document.getElementById('campo-sobre').value = kit.sobre || '';
+        document.getElementById('campo-materiais').value = (kit.materiais || []).map(m => m.nome).join('\n');
+        if (kit.imagemCapa) {
+          document.getElementById('campo-imagem-url').value = kit.imagemCapa;
+          document.getElementById('preview-imagem').innerHTML = `<img src="${kit.imagemCapa}" style="max-width:200px;border-radius:8px;">`;
+        }
+        (kit.recursos || []).forEach(r => {
+          const chk = document.querySelector(`.chk-recurso[value="${r}"]`);
+          if (chk) chk.checked = true;
+        });
+      }
+    } catch (err) {
+      AdminShell.mostrarToast('Erro ao carregar dados: ' + err.message, 'erro');
+    }
+  }
+
+  document.getElementById('form-kit').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btnSalvar = e.target.querySelector('button[type=submit]');
+    btnSalvar.disabled = true;
+    btnSalvar.textContent = 'Salvando...';
+
+    try {
+      const slug = document.getElementById('campo-slug').value.trim();
+      if (!slug) throw new Error('Informe um identificador de URL válido.');
+
+      const materiaisNomes = document.getElementById('campo-materiais').value
+        .split('\n').map(s => s.trim()).filter(Boolean);
+
+      let imagemCapa = document.getElementById('campo-imagem-url').value.trim();
+      const arquivosParaSalvar = [];
+
+      if (imagemBase64Pendente) {
+        const extensao = imagemBase64Pendente.nome.split('.').pop();
+        const caminhoImagem = `images/kits/${slug}/capa.${extensao}`;
+        arquivosParaSalvar.push({ caminho: caminhoImagem, conteudo: imagemBase64Pendente.base64, binario: true });
+        imagemCapa = '/' + caminhoImagem;
+      }
+
+      const recursos = Array.from(document.querySelectorAll('.chk-recurso:checked')).map(c => c.value);
+
+      const kitExistente = dadosCompletos.kits.find(k => k.slug === slug);
+      const novoKit = {
+        id: kitExistente?.id || slug,
+        titulo: document.getElementById('campo-titulo').value.trim(),
+        slug,
+        resumoCurto: document.getElementById('campo-resumo').value.trim(),
+        imagemCapa: imagemCapa || kitExistente?.imagemCapa || '',
+        faixaEtaria: document.getElementById('campo-faixa').value.trim(),
+        numeroExperimentos: kitExistente?.experimentos?.length || 0,
+        recursos,
+        sobre: document.getElementById('campo-sobre').value.trim(),
+        materiais: materiaisNomes.map(nome => ({ nome, temFoto: true, temInfo: true })),
+        experimentos: kitExistente?.experimentos || []
+      };
+
+      if (kitExistente) {
+        dadosCompletos.kits = dadosCompletos.kits.map(k => k.slug === slug ? novoKit : k);
+      } else {
+        if (dadosCompletos.kits.some(k => k.slug === slug)) {
+          throw new Error('Já existe um kit com esse identificador de URL. Escolha outro.');
+        }
+        dadosCompletos.kits.push(novoKit);
+      }
+
+      arquivosParaSalvar.push(
+        { caminho: 'data/kits.json', conteudo: JSON.stringify(dadosCompletos, null, 2), binario: false },
+        { caminho: `kits/${slug}/index.html`, conteudo: gerarPaginaKit(novoKit), binario: false }
+      );
+
+      // Garante que as páginas de experimentos já existentes sejam regeradas também
+      (novoKit.experimentos || []).forEach(exp => {
+        arquivosParaSalvar.push({
+          caminho: `kits/${slug}/${exp.slug}.html`,
+          conteudo: gerarPaginaExperimento(novoKit, exp),
+          binario: false
+        });
+      });
+
+      await AdminData.salvarArquivos(arquivosParaSalvar, `${kitExistente ? 'Atualiza' : 'Cria'} kit "${novoKit.titulo}"`);
+
+      AdminShell.mostrarToast('Kit salvo! O site será atualizado em cerca de 1 minuto.', 'sucesso');
+      setTimeout(() => { window.location.href = `./kits-lista.html`; }, 1400);
+    } catch (err) {
+      AdminShell.mostrarToast('Erro ao salvar: ' + err.message, 'erro');
+      btnSalvar.disabled = false;
+      btnSalvar.textContent = '💾 Salvar Kit';
+    }
+  });
+</script>
+</body>
+</html>

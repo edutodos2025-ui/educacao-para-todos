@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — Painel Aventuras na Ciência</title>
+<link rel="stylesheet" href="../css/style.css">
+<script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+<style>
+  body { background: var(--gradiente-hero); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+  .login-box {
+    background: #fff; border-radius: 16px; padding: 44px 40px;
+    max-width: 420px; width: 92%; box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    text-align: center;
+  }
+  .login-box h1 { font-size: 1.4rem; margin-bottom: 6px; }
+  .login-box p { color: #6b7280; margin-bottom: 28px; font-size: .95rem; }
+  .login-status { margin-top: 18px; font-size: .88rem; color: #6b7280; }
+</style>
+</head>
+<body>
+
+<div class="login-box">
+  <div class="hero-logo" style="justify-content:center;margin-bottom:18px;">
+    <svg viewBox="0 0 64 64" width="60" height="60" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="32" cy="32" r="11" fill="#93c5fd"/>
+      <ellipse cx="32" cy="32" rx="27" ry="12" stroke="#7c3aed" stroke-width="3" fill="none" transform="rotate(-25 32 32)"/>
+      <ellipse cx="32" cy="32" rx="27" ry="12" stroke="#7c3aed" stroke-width="3" fill="none" transform="rotate(25 32 32)"/>
+    </svg>
+  </div>
+  <h1>Painel de Edição</h1>
+  <p>Entre com sua conta de administrador para criar e editar páginas, kits e experimentos.</p>
+
+  <button id="btn-login" class="btn btn-login" style="width:100%;justify-content:center;">↪ Entrar</button>
+
+  <div class="login-status" id="status"></div>
+</div>
+
+<script>
+  window.netlifyIdentity && netlifyIdentity.on('init', user => {
+    if (user) {
+      window.location.href = './editor.html';
+    }
+  });
+
+  document.getElementById('btn-login').addEventListener('click', () => {
+    if (!window.netlifyIdentity) {
+      document.getElementById('status').textContent = 'Serviço de login ainda carregando, tente novamente em instantes.';
+      return;
+    }
+    netlifyIdentity.open('login');
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.netlifyIdentity) {
+      netlifyIdentity.on('login', user => {
+        window.location.href = './editor.html';
+      });
+    }
+  });
+</script>
+</body>
+</html>

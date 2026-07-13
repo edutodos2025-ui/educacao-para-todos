@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Páginas do Menu — Painel</title>
+<link rel="stylesheet" href="admin.css">
+<script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar-root"></div>
+
+<main class="admin-main">
+  <div class="admin-header">
+    <div>
+      <h1>Páginas do Menu</h1>
+      <p class="subtitle">Gerencie os itens que aparecem no menu de navegação do site.</p>
+    </div>
+    <a href="./pagina-editar.html" class="btn-admin btn-admin-primary">➕ Nova Página</a>
+  </div>
+
+  <div class="admin-panel" id="painel-lista">
+    <p style="color:#9ca3af;">Carregando páginas...</p>
+  </div>
+</main>
+
+<script src="admin-shell.js"></script>
+<script src="admin-data.js"></script>
+<script>
+  AdminShell.exigirLogin('paginas');
+
+  let dadosCompletos = null;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    netlifyIdentity.on('init', async (user) => {
+      if (!user) return;
+      await carregarLista();
+    });
+  });
+
+  async function carregarLista() {
+    const painel = document.getElementById('painel-lista');
+    try {
+      dadosCompletos = await AdminData.lerJSON('data/site.json');
+      const menu = (dadosCompletos.menu || []).slice().sort((a, b) => a.ordem - b.ordem);
+
+      painel.innerHTML = `
+        <table class="admin-table">
+          <thead><tr><th>Ordem</th><th>Nome no menu</th><th>Link</th><th>Tipo</th><th></th></tr></thead>
+          <tbody>
+            ${menu.map((item, idx) => `
+              <tr>
+                <td>${item.ordem}</td>
+                <td><strong>${item.label}</strong></td>
+                <td><span class="badge-slug">${item.href}</span></td>
+                <td>${item.fixo ? '<span style="color:#9ca3af;font-size:.82rem;">Fixa (estrutural)</span>' : 'Personalizada'}</td>
+                <td style="text-align:right;white-space:nowrap;">
+                  ${item.fixo
+                    ? '<span style="font-size:.8rem;color:#9ca3af;">Não editável</span>'
+                    : `<a href="./pagina-editar.html?href=${encodeURIComponent(item.href)}" class="btn-admin btn-admin-secondary btn-admin-sm">✏️ Editar</a>
+                       <button class="btn-admin btn-admin-danger btn-admin-sm" onclick="excluirPagina('${item.href}')">🗑️</button>`
+                  }
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } catch (err) {
+      painel.innerHTML = `<p style="color:#b91c1c;">Erro ao carregar: ${err.message}</p>`;
+    }
+  }
+
+  async function excluirPagina(href) {
+    if (!confirm('Remover este item do menu? O arquivo da página não será apagado, apenas o link no menu.')) return;
+    try {
+      dadosCompletos.menu = dadosCompletos.menu.filter(m => m.href !== href);
+      await AdminData.salvarArquivos([
+        { caminho: 'data/site.json', conteudo: JSON.stringify(dadosCompletos, null, 2), binario: false }
+      ], `Remove item de menu "${href}"`);
+      AdminShell.mostrarToast('Item removido do menu.', 'sucesso');
+      carregarLista();
+    } catch (err) {
+      AdminShell.mostrarToast('Erro: ' + err.message, 'erro');
+    }
+  }
+</script>
+</body>
+</html>

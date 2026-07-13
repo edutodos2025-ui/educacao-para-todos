@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editar Página — Painel</title>
+<link rel="stylesheet" href="admin.css">
+<script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar-root"></div>
+
+<main class="admin-main">
+  <div class="admin-header">
+    <div>
+      <h1 id="titulo-tela">Nova Página</h1>
+      <p class="subtitle">Cria um item novo no menu do site e monta seu conteúdo em blocos.</p>
+    </div>
+    <a href="./paginas-lista.html" class="btn-admin btn-admin-secondary">← Voltar</a>
+  </div>
+
+  <div class="admin-panel">
+    <div class="form-row">
+      <div class="form-group">
+        <label>Nome que aparece no menu</label>
+        <input class="form-control" id="campo-label" required placeholder="Ex: Feira de Ciências">
+      </div>
+      <div class="form-group">
+        <label>Posição no menu</label>
+        <input type="number" class="form-control" id="campo-ordem" min="1" value="8" style="max-width:120px;">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Endereço da página (gerado automaticamente)</label>
+      <input class="form-control" id="campo-href" disabled>
+    </div>
+  </div>
+
+  <div class="admin-panel">
+    <h3 style="margin-top:0;">Conteúdo da página</h3>
+    <div id="lista-blocos"></div>
+    <div class="add-block-bar">
+      <button type="button" class="btn-admin btn-admin-secondary" onclick="adicionarBloco('titulo')">➕ Título de seção</button>
+      <button type="button" class="btn-admin btn-admin-secondary" onclick="adicionarBloco('texto')">➕ Bloco de texto</button>
+      <button type="button" class="btn-admin btn-admin-secondary" onclick="adicionarBloco('imagem')">➕ Bloco de imagem</button>
+    </div>
+  </div>
+
+  <button id="btn-salvar" class="btn-admin btn-admin-primary">💾 Salvar Página</button>
+</main>
+
+<script src="admin-shell.js"></script>
+<script src="admin-data.js"></script>
+<script src="../js/templates.js"></script>
+<script src="../js/templates-pagina.js"></script>
+<script>
+  AdminShell.exigirLogin('paginas');
+
+  const params = new URLSearchParams(window.location.search);
+  const hrefExistente = params.get('href');
+  let dadosCompletos = null;
+  let blocos = [];
+
+  window.addEventListener('DOMContentLoaded', () => {
+    netlifyIdentity.on('init', async (user) => {
+      if (!user) return;
+      await carregarFormulario();
+    });
+  });
+
+  function gerarSlug(texto) {
+    return texto.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+  }
+
+  document.getElementById('campo-label').addEventListener('input', (e) => {
+    if (!hrefExistente) {
+      document.getElementById('campo-href').value = '/' + gerarSlug(e.target.value) + '.html';
+    }
+  });
+
+  async function carregarFormulario() {
+    try {
+      dadosCompletos = await AdminData.lerJSON('data/site.json');
+
+      if (hrefExistente) {
+        const item = dadosCompletos.menu.find(m => m.href === hrefExistente);
+        if (!item) { alert('Página não encontrada.'); return; }
+        document.getElementById('titulo-tela').textContent = 'Editar Página';
+        document.getElementById('campo-label').value = item.label;
+        document.getElementById('campo-ordem').value = item.ordem;
+        document.getElementById('campo-href').value = item.href;
+        blocos = JSON.parse(JSON.stringify(item.blocos || []));
+      } else {
+        const maiorOrdem = Math.max(0, ...dadosCompletos.menu.map(m => m.ordem));
+        document.getElementById('campo-ordem').value = maiorOrdem + 1;
+      }
+      renderizarBlocos();
+    } catch (err) {
+      AdminShell.mostrarToast('Erro ao carregar: ' + err.message, 'erro');
+    }
+  }
+
+  function renderizarBlocos() {
+    const lista = document.getElementById('lista-blocos');
+    if (blocos.length === 0) {
+      lista.innerHTML = '<p style="color:#9ca3af;font-size:.9rem;">Nenhum bloco ainda.</p>';
+      return;
+    }
+    lista.innerHTML = blocos.map((bloco, i) => {
+      const rotulos = { titulo: '📌 Título de seção', texto: '📝 Bloco de texto', imagem: '🖼️ Bloco de imagem' };
+      let campoHtml = '';
+      if (bloco.tipo === 'texto') {
+        campoHtml = `<textarea class="form-control" rows="4" oninput="atualizarBlocoTexto(${i}, this.value)" placeholder="Digite o texto...">${bloco.conteudo || ''}</textarea>`;
+      }
+      if (bloco.tipo === 'imagem') {
+        campoHtml = `
+          <input type="file" class="form-control" accept="image/*" onchange="atualizarImagemBloco(${i}, this.files[0])">
+          <div class="hint">Ou cole o link de uma imagem já hospedada:</div>
+          <input class="form-control" style="margin-top:6px;" placeholder="https://..." value="${bloco.urlExterna || ''}" oninput="atualizarUrlBloco(${i}, this.value)">
+          <input class="form-control" style="margin-top:6px;" placeholder="Legenda (opcional)" value="${bloco.legenda || ''}" oninput="atualizarLegendaBloco(${i}, this.value)">
+          <div id="preview-bloco-${i}" style="margin-top:8px;">${bloco.url ? `<img src="${bloco.url}" style="max-width:220px;border-radius:8px;">` : ''}</div>`;
+      }
+      return `
+        <div class="block-editor-item">
+          <div class="block-editor-actions">
+            ${i > 0 ? `<button class="icon-btn" onclick="moverBloco(${i}, -1)">↑</button>` : ''}
+            ${i < blocos.length - 1 ? `<button class="icon-btn" onclick="moverBloco(${i}, 1)">↓</button>` : ''}
+            <button class="icon-btn" onclick="removerBloco(${i})">✕</button>
+          </div>
+          <div class="block-type-label">${rotulos[bloco.tipo]}</div>
+          ${bloco.tipo === 'titulo' ? `<input class="form-control campo-titulo-bloco" data-i="${i}" placeholder="Texto do título">` : campoHtml}
+        </div>`;
+    }).join('');
+
+    blocos.forEach((bloco, i) => {
+      if (bloco.tipo === 'titulo') {
+        const input = lista.querySelector(`.campo-titulo-bloco[data-i="${i}"]`);
+        if (input) {
+          input.value = bloco.conteudo || '';
+          input.addEventListener('input', (e) => atualizarBlocoTexto(i, e.target.value));
+        }
+      }
+    });
+  }
+
+  function atualizarBlocoTexto(i, valor) { blocos[i].conteudo = valor; }
+  function atualizarUrlBloco(i, valor) { blocos[i].urlExterna = valor; if (valor) blocos[i].url = valor; }
+  function atualizarLegendaBloco(i, valor) { blocos[i].legenda = valor; }
+
+  async function atualizarImagemBloco(i, file) {
+    if (!file) return;
+    const base64 = await AdminData.arquivoParaBase64(file);
+    const tipo = file.type || 'image/jpeg';
+    blocos[i].arquivoPendente = { nome: file.name, tipo, base64 };
+    document.getElementById(`preview-bloco-${i}`).innerHTML = `<img src="data:${tipo};base64,${base64}" style="max-width:220px;border-radius:8px;">`;
+  }
+
+  function adicionarBloco(tipo) {
+    blocos.push(tipo === 'imagem' ? { tipo, url: '', legenda: '' } : { tipo, conteudo: '' });
+    renderizarBlocos();
+  }
+  function removerBloco(i) { blocos.splice(i, 1); renderizarBlocos(); }
+  function moverBloco(i, direcao) {
+    const j = i + direcao;
+    if (j < 0 || j >= blocos.length) return;
+    [blocos[i], blocos[j]] = [blocos[j], blocos[i]];
+    renderizarBlocos();
+  }
+
+  document.getElementById('btn-salvar').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-salvar');
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+    try {
+      const label = document.getElementById('campo-label').value.trim();
+      const href = document.getElementById('campo-href').value.trim();
+      const ordem = parseInt(document.getElementById('campo-ordem').value, 10) || 1;
+      if (!label || !href) throw new Error('Preencha o nome da página.');
+
+      const arquivosParaSalvar = [];
+      const blocosFinais = [];
+      for (const bloco of blocos) {
+        if (bloco.tipo === 'imagem' && bloco.arquivoPendente) {
+          const ext = bloco.arquivoPendente.nome.split('.').pop();
+          const caminho = `images/paginas/${gerarSlug(label)}-${Date.now()}.${ext}`;
+          arquivosParaSalvar.push({ caminho, conteudo: bloco.arquivoPendente.base64, binario: true });
+          blocosFinais.push({ tipo: 'imagem', url: '/' + caminho, legenda: bloco.legenda || '' });
+        } else if (bloco.tipo === 'imagem') {
+          blocosFinais.push({ tipo: 'imagem', url: bloco.url || bloco.urlExterna || '', legenda: bloco.legenda || '' });
+        } else {
+          blocosFinais.push({ tipo: bloco.tipo, conteudo: bloco.conteudo || '' });
+        }
+      }
+
+      const novoItem = { label, href, ordem, fixo: false, blocos: blocosFinais };
+
+      if (hrefExistente) {
+        dadosCompletos.menu = dadosCompletos.menu.map(m => m.href === hrefExistente ? novoItem : m);
+      } else {
+        if (dadosCompletos.menu.some(m => m.href === href)) {
+          throw new Error('Já existe uma página com esse endereço.');
+        }
+        dadosCompletos.menu.push(novoItem);
+      }
+
+      arquivosParaSalvar.push(
+        { caminho: 'data/site.json', conteudo: JSON.stringify(dadosCompletos, null, 2), binario: false },
+        { caminho: href.replace(/^\//, ''), conteudo: gerarPaginaInstitucional({ titulo: label, blocos: blocosFinais }), binario: false }
+      );
+
+      await AdminData.salvarArquivos(arquivosParaSalvar, `${hrefExistente ? 'Atualiza' : 'Cria'} página de menu "${label}"`);
+
+      AdminShell.mostrarToast('Página salva! O site será atualizado em instantes.', 'sucesso');
+      setTimeout(() => { window.location.href = './paginas-lista.html'; }, 1400);
+    } catch (err) {
+      AdminShell.mostrarToast('Erro ao salvar: ' + err.message, 'erro');
+      btn.disabled = false;
+      btn.textContent = '💾 Salvar Página';
+    }
+  });
+</script>
+</body>
+</html>

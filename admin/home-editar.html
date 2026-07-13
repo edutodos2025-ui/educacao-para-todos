@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conteúdo da Home — Painel</title>
+<link rel="stylesheet" href="admin.css">
+<script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar-root"></div>
+
+<main class="admin-main">
+  <div class="admin-header">
+    <div>
+      <h1>Conteúdo da Home</h1>
+      <p class="subtitle">Edite os textos principais da página inicial do site.</p>
+    </div>
+  </div>
+
+  <form class="admin-panel" id="form-home">
+    <div class="form-group">
+      <label>Título principal (hero)</label>
+      <input class="form-control" id="campo-hero-titulo">
+    </div>
+    <div class="form-group">
+      <label>Subtítulo (hero)</label>
+      <textarea class="form-control" id="campo-hero-subtitulo" rows="2"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Texto de introdução</label>
+      <textarea class="form-control" id="campo-intro" rows="4"></textarea>
+    </div>
+
+    <h3>Missão, Visão e Valores</h3>
+    <div id="mvv-campos"></div>
+
+    <button type="submit" class="btn-admin btn-admin-primary">💾 Salvar</button>
+  </form>
+</main>
+
+<script src="admin-shell.js"></script>
+<script src="admin-data.js"></script>
+<script>
+  AdminShell.exigirLogin('home');
+  let dadosSite = null;
+
+  window.addEventListener('DOMContentLoaded', () => {
+    netlifyIdentity.on('init', async (user) => {
+      if (!user) return;
+      dadosSite = await AdminData.lerJSON('data/site.json');
+      document.getElementById('campo-hero-titulo').value = dadosSite.home.heroTitulo;
+      document.getElementById('campo-hero-subtitulo').value = dadosSite.home.heroSubtitulo;
+      document.getElementById('campo-intro').value = dadosSite.home.introTexto;
+
+      const mvvDiv = document.getElementById('mvv-campos');
+      mvvDiv.innerHTML = dadosSite.home.missaoVisaoValores.map((item, i) => `
+        <div class="form-group">
+          <label>${item.titulo}</label>
+          <textarea class="form-control campo-mvv" data-i="${i}" rows="2">${item.texto}</textarea>
+        </div>
+      `).join('');
+    });
+  });
+
+  document.getElementById('form-home').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type=submit]');
+    btn.disabled = true; btn.textContent = 'Salvando...';
+    try {
+      dadosSite.home.heroTitulo = document.getElementById('campo-hero-titulo').value;
+      dadosSite.home.heroSubtitulo = document.getElementById('campo-hero-subtitulo').value;
+      dadosSite.home.introTexto = document.getElementById('campo-intro').value;
+      document.querySelectorAll('.campo-mvv').forEach(el => {
+        dadosSite.home.missaoVisaoValores[parseInt(el.dataset.i, 10)].texto = el.value;
+      });
+
+      await AdminData.salvarArquivos([
+        { caminho: 'data/site.json', conteudo: JSON.stringify(dadosSite, null, 2), binario: false }
+      ], 'Atualiza conteúdo da home');
+
+      AdminShell.mostrarToast('Conteúdo da home salvo!', 'sucesso');
+    } catch (err) {
+      AdminShell.mostrarToast('Erro: ' + err.message, 'erro');
+    } finally {
+      btn.disabled = false; btn.textContent = '💾 Salvar';
+    }
+  });
+</script>
+</body>
+</html>

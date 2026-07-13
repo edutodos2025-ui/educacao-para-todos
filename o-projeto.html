@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O Projeto — Aventuras na Ciência</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<div id="site-header"></div>
+
+<section class="section">
+  <div class="container">
+    <h1 class="section-title" style="color:var(--azul-primario);">Sobre o Projeto</h1>
+    <div class="grid-2" style="margin-top:40px;" id="sobre-grid">
+      <!-- injetado via JS -->
+    </div>
+  </div>
+</section>
+
+<div id="site-footer"></div>
+
+<script src="/js/layout.js"></script>
+<script>
+  const blocos = [
+    { icone: '📖', chave: 'comoSurgiu', titulo: 'Como Surgiu' },
+    { icone: '🌐', chave: 'publicoAlvo', titulo: 'Público-Alvo' },
+    { icone: '🔬', chave: 'metodologia', titulo: 'Nossa Metodologia' },
+    { icone: '📊', chave: 'impactoEsperado', titulo: 'Impacto Esperado' }
+  ];
+
+  fetch('/data/site.json')
+    .then(r => r.json())
+    .then(data => {
+      const grid = document.getElementById('sobre-grid');
+      grid.innerHTML = blocos.map(b => `
+        <div class="icon-box">
+          <div class="emoji">${b.icone}</div>
+          <div>
+            <h4>${b.titulo}</h4>
+            <p>${data.sobreProjeto[b.chave]}</p>
+          </div>
+        </div>
+      `).join('');
+    });
+</script>
+</body>
+</html>

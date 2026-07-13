@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel — Aventuras na Ciência</title>
+<link rel="stylesheet" href="admin.css">
+<script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar-root"></div>
+
+<main class="admin-main">
+  <div class="admin-header">
+    <div>
+      <h1>Bem-vindo ao painel</h1>
+      <p class="subtitle">Gerencie kits, experimentos e páginas do site Aventuras na Ciência.</p>
+    </div>
+  </div>
+
+  <div class="grid-3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;">
+    <div class="admin-panel">
+      <div style="font-size:1.6rem;margin-bottom:8px;">🧪</div>
+      <h3 id="stat-kits" style="margin:0 0 4px;font-size:1.6rem;">—</h3>
+      <p style="color:#6b7280;margin:0;font-size:.9rem;">Kits publicados</p>
+      <a href="./kits-lista.html" class="btn-admin btn-admin-secondary btn-admin-sm" style="margin-top:14px;">Gerenciar kits →</a>
+    </div>
+    <div class="admin-panel">
+      <div style="font-size:1.6rem;margin-bottom:8px;">🔬</div>
+      <h3 id="stat-experimentos" style="margin:0 0 4px;font-size:1.6rem;">—</h3>
+      <p style="color:#6b7280;margin:0;font-size:.9rem;">Experimentos cadastrados</p>
+    </div>
+    <div class="admin-panel">
+      <div style="font-size:1.6rem;margin-bottom:8px;">📄</div>
+      <h3 id="stat-paginas" style="margin:0 0 4px;font-size:1.6rem;">—</h3>
+      <p style="color:#6b7280;margin:0;font-size:.9rem;">Páginas no menu</p>
+      <a href="./paginas-lista.html" class="btn-admin btn-admin-secondary btn-admin-sm" style="margin-top:14px;">Gerenciar páginas →</a>
+    </div>
+  </div>
+
+  <div class="admin-panel" style="margin-top:24px;">
+    <h3 style="margin-top:0;">Ações rápidas</h3>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <a href="./kit-editar.html" class="btn-admin btn-admin-primary">➕ Novo Kit</a>
+      <a href="./pagina-editar.html" class="btn-admin btn-admin-secondary">➕ Nova Página no Menu</a>
+    </div>
+  </div>
+</main>
+
+<script src="admin-shell.js"></script>
+<script src="admin-data.js"></script>
+<script>
+  AdminShell.exigirLogin('inicio');
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.netlifyIdentity) {
+      netlifyIdentity.on('init', async (user) => {
+        if (!user) return;
+        try {
+          const kits = await AdminData.lerJSON('data/kits.json');
+          const site = await AdminData.lerJSON('data/site.json');
+          const totalExperimentos = (kits?.kits || []).reduce((acc, k) => acc + (k.experimentos?.length || 0), 0);
+          document.getElementById('stat-kits').textContent = kits?.kits?.length || 0;
+          document.getElementById('stat-experimentos').textContent = totalExperimentos;
+          document.getElementById('stat-paginas').textContent = site?.menu?.length || 0;
+        } catch (err) {
+          console.error(err);
+        }
+      });
+    }
+  });
+</script>
+</body>
+</html>

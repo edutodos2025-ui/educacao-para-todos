@@ -1,0 +1,15 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+# Protege a área /admin com Netlify Identity (login obrigatório)
+[[redirects]]
+  from = "/admin/editor.html"
+  to = "/admin/editor.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"

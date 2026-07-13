@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kits Educativos — Painel</title>
+<link rel="stylesheet" href="admin.css">
+<script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar-root"></div>
+
+<main class="admin-main">
+  <div class="admin-header">
+    <div>
+      <h1>Kits Educativos</h1>
+      <p class="subtitle">Crie e edite os kits que aparecem na página pública "Kits Educativos".</p>
+    </div>
+    <a href="./kit-editar.html" class="btn-admin btn-admin-primary">➕ Novo Kit</a>
+  </div>
+
+  <div class="admin-panel" id="painel-lista">
+    <p style="color:#9ca3af;">Carregando kits...</p>
+  </div>
+</main>
+
+<script src="admin-shell.js"></script>
+<script src="admin-data.js"></script>
+<script>
+  AdminShell.exigirLogin('kits');
+
+  window.addEventListener('DOMContentLoaded', () => {
+    netlifyIdentity.on('init', async (user) => {
+      if (!user) return;
+      await carregarLista();
+    });
+  });
+
+  async function carregarLista() {
+    const painel = document.getElementById('painel-lista');
+    try {
+      const data = await AdminData.lerJSON('data/kits.json');
+      const kits = data?.kits || [];
+
+      if (kits.length === 0) {
+        painel.innerHTML = `
+          <div class="admin-empty">
+            <div class="icon">🧪</div>
+            <p>Nenhum kit cadastrado ainda.</p>
+            <a href="./kit-editar.html" class="btn-admin btn-admin-primary">Criar o primeiro kit</a>
+          </div>`;
+        return;
+      }
+
+      painel.innerHTML = `
+        <table class="admin-table">
+          <thead><tr><th>Kit</th><th>Experimentos</th><th>Faixa etária</th><th></th></tr></thead>
+          <tbody>
+            ${kits.map(kit => `
+              <tr>
+                <td><strong>${kit.titulo}</strong><br><span class="badge-slug">${kit.slug}</span></td>
+                <td>${(kit.experimentos || []).length}</td>
+                <td>${kit.faixaEtaria || '—'}</td>
+                <td style="text-align:right;white-space:nowrap;">
+                  <a href="./kit-editar.html?slug=${kit.slug}" class="btn-admin btn-admin-secondary btn-admin-sm">✏️ Editar</a>
+                  <a href="./experimentos-lista.html?kit=${kit.slug}" class="btn-admin btn-admin-secondary btn-admin-sm">🔬 Experimentos</a>
+                  <button class="btn-admin btn-admin-danger btn-admin-sm" onclick="excluirKit('${kit.slug}')">🗑️</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } catch (err) {
+      painel.innerHTML = `<p style="color:#b91c1c;">Erro ao carregar kits: ${err.message}</p>`;
+    }
+  }
+
+  async function excluirKit(slug) {
+    if (!confirm(`Tem certeza que deseja excluir este kit e todos os seus experimentos?\n\nEsta ação não pode ser desfeita.`)) return;
+
+    try {
+      const data = await AdminData.lerJSON('data/kits.json');
+      const kit = data.kits.find(k => k.slug === slug);
+      data.kits = data.kits.filter(k => k.slug !== slug);
+
+      await AdminData.salvarArquivos([
+        { caminho: 'data/kits.json', conteudo: JSON.stringify(data, null, 2), binario: false }
+      ], `Remove kit "${kit?.titulo || slug}"`);
+
+      AdminShell.mostrarToast('Kit excluído. O site será atualizado em instantes.', 'sucesso');
+      carregarLista();
+    } catch (err) {
+      AdminShell.mostrarToast('Erro ao excluir: ' + err.message, 'erro');
+    }
+  }
+</script>
+</body>
+</html>

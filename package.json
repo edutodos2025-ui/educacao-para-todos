@@ -1,0 +1,10 @@
+{
+  "name": "aventuras-na-ciencia",
+  "version": "1.0.0",
+  "description": "Site institucional e educativo Aventuras na Ciência, com painel de edição integrado ao GitHub via Netlify Functions.",
+  "private": true,
+  "license": "ISC",
+  "dependencies": {
+    "@octokit/rest": "^22.0.1"
+  }
+}

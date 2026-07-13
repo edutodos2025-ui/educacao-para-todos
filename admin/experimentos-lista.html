@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Experimentos do Kit — Painel</title>
+<link rel="stylesheet" href="admin.css">
+<script defer src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body class="admin-body">
+
+<div id="admin-sidebar-root"></div>
+
+<main class="admin-main">
+  <div class="admin-header">
+    <div>
+      <h1 id="titulo-tela">Experimentos</h1>
+      <p class="subtitle" id="subtitulo-tela">Carregando...</p>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <a href="./kits-lista.html" class="btn-admin btn-admin-secondary">← Voltar aos kits</a>
+      <a href="#" id="link-novo-experimento" class="btn-admin btn-admin-primary">➕ Novo Experimento</a>
+    </div>
+  </div>
+
+  <div class="admin-panel" id="painel-lista">
+    <p style="color:#9ca3af;">Carregando experimentos...</p>
+  </div>
+</main>
+
+<script src="admin-shell.js"></script>
+<script src="admin-data.js"></script>
+<script src="../js/templates.js"></script>
+<script>
+  AdminShell.exigirLogin('kits');
+
+  const params = new URLSearchParams(window.location.search);
+  const slugKit = params.get('kit');
+  let dadosCompletos = null;
+
+  if (!slugKit) {
+    document.getElementById('painel-lista').innerHTML = '<p>Nenhum kit informado na URL.</p>';
+  } else {
+    document.getElementById('link-novo-experimento').href = `./experimento-editar.html?kit=${slugKit}`;
+    window.addEventListener('DOMContentLoaded', () => {
+      netlifyIdentity.on('init', async (user) => {
+        if (!user) return;
+        await carregarLista();
+      });
+    });
+  }
+
+  async function carregarLista() {
+    const painel = document.getElementById('painel-lista');
+    try {
+      dadosCompletos = await AdminData.lerJSON('data/kits.json');
+      const kit = dadosCompletos.kits.find(k => k.slug === slugKit);
+      if (!kit) { painel.innerHTML = '<p>Kit não encontrado.</p>'; return; }
+
+      document.getElementById('titulo-tela').textContent = `Experimentos — ${kit.titulo}`;
+      document.getElementById('subtitulo-tela').textContent = 'Cada experimento vira uma subpágina própria dentro do kit.';
+
+      const experimentos = (kit.experimentos || []).slice().sort((a, b) => a.ordem - b.ordem);
+
+      if (experimentos.length === 0) {
+        painel.innerHTML = `
+          <div class="admin-empty">
+            <div class="icon">🔬</div>
+            <p>Nenhum experimento cadastrado neste kit ainda.</p>
+            <a href="./experimento-editar.html?kit=${slugKit}" class="btn-admin btn-admin-primary">Criar o primeiro experimento</a>
+          </div>`;
+        return;
+      }
+
+      painel.innerHTML = `
+        <table class="admin-table">
+          <thead><tr><th>Ordem</th><th>Experimento</th><th>Blocos de conteúdo</th><th></th></tr></thead>
+          <tbody>
+            ${experimentos.map(exp => `
+              <tr>
+                <td>${exp.ordem}</td>
+                <td><strong>${exp.titulo}</strong><br><span class="badge-slug">${exp.slug}</span></td>
+                <td>${(exp.blocos || []).length}</td>
+                <td style="text-align:right;white-space:nowrap;">
+                  <a href="/kits/${slugKit}/${exp.slug}.html" target="_blank" class="btn-admin btn-admin-secondary btn-admin-sm">👁 Ver</a>
+                  <a href="./experimento-editar.html?kit=${slugKit}&exp=${exp.slug}" class="btn-admin btn-admin-secondary btn-admin-sm">✏️ Editar</a>
+                  <button class="btn-admin btn-admin-danger btn-admin-sm" onclick="excluirExperimento('${exp.slug}')">🗑️</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    } catch (err) {
+      painel.innerHTML = `<p style="color:#b91c1c;">Erro ao carregar: ${err.message}</p>`;
+    }
+  }
+
+  async function excluirExperimento(expSlug) {
+    if (!confirm('Excluir este experimento? A página publicada deixará de existir.')) return;
+    try {
+      const kit = dadosCompletos.kits.find(k => k.slug === slugKit);
+      kit.experimentos = kit.experimentos.filter(e => e.slug !== expSlug);
+      kit.numeroExperimentos = kit.experimentos.length;
+
+      await AdminData.salvarArquivos([
+        { caminho: 'data/kits.json', conteudo: JSON.stringify(dadosCompletos, null, 2), binario: false },
+        { caminho: `kits/${slugKit}/index.html`, conteudo: gerarPaginaKit(kit), binario: false }
+      ], `Remove experimento "${expSlug}" do kit "${kit.titulo}"`);
+
+      AdminShell.mostrarToast('Experimento excluído.', 'sucesso');
+      carregarLista();
+    } catch (err) {
+      AdminShell.mostrarToast('Erro ao excluir: ' + err.message, 'erro');
+    }
+  }
+</script>
+</body>
+</html>
