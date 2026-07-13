@@ -20,18 +20,6 @@
       "fixo": true
     },
     {
-      "label": "Apoio Aluno",
-      "href": "/apoio-aluno.html",
-      "ordem": 5,
-      "fixo": false,
-      "blocos": [
-        {
-          "tipo": "texto",
-          "conteudo": "Conteúdos de apoio para você, estudante, aprofundar o que aprendeu com os kits."
-        }
-      ]
-    },
-    {
       "label": "Você Sabia?",
       "href": "/voce-sabia.html",
       "ordem": 6,
