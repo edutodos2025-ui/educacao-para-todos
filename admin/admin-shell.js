@@ -72,14 +72,41 @@ const AdminShell = (() => {
       }
     }
 
-    if (window.netlifyIdentity) {
+    function registrarListeners() {
       netlifyIdentity.on('init', aoIniciar);
       netlifyIdentity.on('logout', () => { window.location.href = './login.html'; });
-      // caso o widget já tenha inicializado antes deste script rodar
+
+      // Se o widget já tinha um usuário quando este script rodou, o evento
+      // "init" pode já ter disparado antes de nos inscrevermos — resolvemos
+      // isso checando o usuário atual diretamente também.
       const atual = netlifyIdentity.currentUser();
-      if (atual) aoIniciar(atual);
+      if (atual) {
+        aoIniciar(atual);
+      } else {
+        // Dá um tempo curto para o "init" do widget disparar antes de
+        // desistir e mandar para o login (evita falso-negativo de login).
+        setTimeout(() => {
+          const aindaSemUsuario = !netlifyIdentity.currentUser();
+          if (aindaSemUsuario && document.body.style.visibility === 'hidden') {
+            window.location.href = './login.html';
+          }
+        }, 1500);
+      }
+    }
+
+    // O widget do Netlify Identity carrega com "defer", então pode não
+    // existir ainda no momento em que este script roda. Esperamos o
+    // evento "load" da página nesse caso, em vez de assumir que faltou login.
+    if (window.netlifyIdentity) {
+      registrarListeners();
     } else {
-      window.location.href = './login.html';
+      window.addEventListener('load', () => {
+        if (window.netlifyIdentity) {
+          registrarListeners();
+        } else {
+          window.location.href = './login.html';
+        }
+      });
     }
   }
 

@@ -37,11 +37,24 @@
 </div>
 
 <script>
-  window.netlifyIdentity && netlifyIdentity.on('init', user => {
-    if (user) {
+  function configurarListeners() {
+    netlifyIdentity.on('init', user => {
+      if (user) {
+        window.location.href = './editor.html';
+      }
+    });
+
+    netlifyIdentity.on('login', user => {
+      window.location.href = './editor.html';
+    });
+
+    // Se o widget já tinha um usuário logado antes deste script rodar
+    // (ex: login feito em outra aba, ou sessão anterior ainda válida)
+    const usuarioJaLogado = netlifyIdentity.currentUser();
+    if (usuarioJaLogado) {
       window.location.href = './editor.html';
     }
-  });
+  }
 
   document.getElementById('btn-login').addEventListener('click', () => {
     if (!window.netlifyIdentity) {
@@ -51,13 +64,20 @@
     netlifyIdentity.open('login');
   });
 
-  window.addEventListener('DOMContentLoaded', () => {
-    if (window.netlifyIdentity) {
-      netlifyIdentity.on('login', user => {
-        window.location.href = './editor.html';
-      });
-    }
-  });
+  // Como o widget do Netlify Identity carrega com "defer", ele só fica
+  // disponível depois que a página termina de carregar. Por isso esperamos
+  // o evento "load" antes de tentar usar window.netlifyIdentity.
+  if (window.netlifyIdentity) {
+    configurarListeners();
+  } else {
+    window.addEventListener('load', () => {
+      if (window.netlifyIdentity) {
+        configurarListeners();
+      } else {
+        document.getElementById('status').textContent = 'Não foi possível carregar o serviço de login. Verifique sua conexão e recarregue a página.';
+      }
+    });
+  }
 </script>
 </body>
 </html>
