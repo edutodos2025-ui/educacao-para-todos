@@ -46,45 +46,45 @@
         <p style="font-size:.9rem;color:#6b7280;margin-bottom:10px;"><strong>📦 Materiais Inclusos:</strong></p>
         <div>
         <div class="material-item">
-          <span>✦ Fontes de Luz ( Vermelha, Azul, Verde e Branca)</span>
+          <span class="material-nome-clicavel" onclick="abrirFotoMaterial('/images/kits/kit-cores-uma-fantastica-viagem-ao-mundo-das-cores-e-sensacoes/materiais/fontes-de-luz-vermelha-azul-verde-e-branca-1784052122093-0.png', 'Fontes de Luz ( Vermelha, Azul, Verde e Branca)')">✦ Fontes de Luz ( Vermelha, Azul, Verde e Branca)</span>
           <div class="material-actions">
-            <button class="pill-btn">📷 Foto</button>
+            <button class="pill-btn" onclick="abrirFotoMaterial('/images/kits/kit-cores-uma-fantastica-viagem-ao-mundo-das-cores-e-sensacoes/materiais/fontes-de-luz-vermelha-azul-verde-e-branca-1784052122093-0.png', 'Fontes de Luz ( Vermelha, Azul, Verde e Branca)')">📷 Foto</button>
           </div>
         </div>
         <div class="material-item">
-          <span>✦ Filtros de Luz</span>
+          <span class="" >✦ Filtros de Luz</span>
           <div class="material-actions">
-            <button class="pill-btn">📷 Foto</button>
+            
           </div>
         </div>
         <div class="material-item">
-          <span>✦ Cartões de ilusão de óptica</span>
+          <span class="" >✦ Cartões de ilusão de óptica</span>
           <div class="material-actions">
-            <button class="pill-btn">📷 Foto</button>
+            
           </div>
         </div>
         <div class="material-item">
-          <span>✦ Gravura 3D</span>
+          <span class="" >✦ Gravura 3D</span>
           <div class="material-actions">
-            <button class="pill-btn">📷 Foto</button>
+            
           </div>
         </div>
         <div class="material-item">
-          <span>✦ Óculos 3d</span>
+          <span class="" >✦ Óculos 3d</span>
           <div class="material-actions">
-            <button class="pill-btn">📷 Foto</button>
+            
           </div>
         </div>
         <div class="material-item">
-          <span>✦ Pião - Disco de Newton</span>
+          <span class="" >✦ Pião - Disco de Newton</span>
           <div class="material-actions">
-            <button class="pill-btn">📷 Foto</button>
+            
           </div>
         </div>
         <div class="material-item">
-          <span>✦ Giz de Cera</span>
+          <span class="" >✦ Giz de Cera</span>
           <div class="material-actions">
-            <button class="pill-btn">📷 Foto</button>
+            
           </div>
         </div></div>
       </div>
@@ -94,6 +94,31 @@
 
 <div id="site-footer"></div>
 
+<div id="modal-foto-material" class="modal-overlay" onclick="fecharFotoMaterial(event)">
+  <div class="modal-conteudo">
+    <button class="modal-fechar" onclick="fecharFotoMaterial()" aria-label="Fechar">✕</button>
+    <img id="modal-foto-imagem" src="" alt="">
+    <p id="modal-foto-legenda"></p>
+  </div>
+</div>
+
 <script src="../../js/layout.js"></script>
+<script>
+  function abrirFotoMaterial(url, nome) {
+    document.getElementById('modal-foto-imagem').src = url;
+    document.getElementById('modal-foto-imagem').alt = nome;
+    document.getElementById('modal-foto-legenda').textContent = nome;
+    document.getElementById('modal-foto-material').classList.add('aberto');
+    document.body.style.overflow = 'hidden';
+  }
+  function fecharFotoMaterial(event) {
+    if (event && event.target !== event.currentTarget && event.type === 'click' && !event.target.classList.contains('modal-fechar')) return;
+    document.getElementById('modal-foto-material').classList.remove('aberto');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') fecharFotoMaterial();
+  });
+</script>
 </body>
 </html>

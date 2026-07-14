@@ -251,41 +251,35 @@
         "manual"
       ],
       "sobre": "Este kit revolucionário aborda a natureza fascinante da luz, explorando as cores primárias, a síntese aditiva e subtrativa, além de ilusões ópticas impressionantes e visão estereoscópica. A experiência permite compreender como a física da luz e a fisiologia da visão se combinam harmoniosamente para formar nossa percepção única de cores.",
+      "videoUrl": "",
       "materiais": [
         {
           "nome": "Fontes de Luz ( Vermelha, Azul, Verde e Branca)",
-          "temFoto": true,
-          "temInfo": true
+          "foto": "/images/kits/kit-cores-uma-fantastica-viagem-ao-mundo-das-cores-e-sensacoes/materiais/fontes-de-luz-vermelha-azul-verde-e-branca-1784052122093-0.png"
         },
         {
           "nome": "Filtros de Luz",
-          "temFoto": true,
-          "temInfo": true
+          "foto": ""
         },
         {
           "nome": "Cartões de ilusão de óptica",
-          "temFoto": true,
-          "temInfo": true
+          "foto": ""
         },
         {
           "nome": "Gravura 3D",
-          "temFoto": true,
-          "temInfo": true
+          "foto": ""
         },
         {
           "nome": "Óculos 3d",
-          "temFoto": true,
-          "temInfo": true
+          "foto": ""
         },
         {
           "nome": "Pião - Disco de Newton",
-          "temFoto": true,
-          "temInfo": true
+          "foto": ""
         },
         {
           "nome": "Giz de Cera",
-          "temFoto": true,
-          "temInfo": true
+          "foto": ""
         }
       ],
       "experimentos": []
