@@ -50,6 +50,12 @@
     </div>
 
     <div class="form-group">
+      <label>Vídeo de apresentação (link do YouTube)</label>
+      <input class="form-control" id="campo-video" placeholder="https://www.youtube.com/watch?v=...">
+      <div class="hint">Opcional. Cole o link normal do YouTube — o vídeo aparecerá incorporado na página do kit. Deixe em branco para não exibir vídeo.</div>
+    </div>
+
+    <div class="form-group">
       <label>Imagem de capa</label>
       <input type="file" class="form-control" id="campo-imagem-arquivo" accept="image/*">
       <div class="hint">Ou cole o link de uma imagem já hospedada:</div>
@@ -68,8 +74,9 @@
     </div>
 
     <div class="form-group">
-      <label>Materiais inclusos (um por linha)</label>
-      <textarea class="form-control" id="campo-materiais" rows="4" placeholder="Placa Arduino Uno&#10;Cabo USB&#10;Jumper"></textarea>
+      <label>Materiais inclusos</label>
+      <div id="lista-materiais"></div>
+      <button type="button" class="btn-admin btn-admin-secondary btn-admin-sm" onclick="adicionarMaterial()" style="margin-top:8px;">➕ Adicionar material</button>
     </div>
 
     <div style="display:flex;gap:10px;margin-top:8px;">
@@ -87,6 +94,7 @@
   let dadosCompletos = null;
   let slugEditadoManualmente = false;
   let imagemBase64Pendente = null;
+  let materiais = [];
 
   AdminShell.exigirLogin('kits', async (user) => {
     await carregarFormulario();
@@ -114,6 +122,67 @@
     document.getElementById('campo-imagem-url').value = '';
   });
 
+  function renderizarMateriais() {
+    const container = document.getElementById('lista-materiais');
+    if (materiais.length === 0) {
+      container.innerHTML = '<p style="color:#9ca3af;font-size:.88rem;">Nenhum material adicionado ainda.</p>';
+      return;
+    }
+    container.innerHTML = materiais.map((m, i) => `
+      <div class="block-editor-item">
+        <div class="block-editor-actions">
+          <button type="button" class="icon-btn" onclick="removerMaterial(${i})" title="Remover">✕</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome do material</label>
+            <input class="form-control campo-material-nome" data-i="${i}" placeholder="Ex: Placa Arduino Uno">
+          </div>
+          <div class="form-group">
+            <label>Foto (opcional)</label>
+            <input type="file" class="form-control" accept="image/*" onchange="atualizarFotoMaterial(${i}, this.files[0])">
+          </div>
+        </div>
+        <input class="form-control campo-material-foto-url" data-i="${i}" placeholder="Ou cole o link de uma foto já hospedada" value="${m.fotoUrlExterna || ''}" style="margin-bottom:8px;">
+        <div id="preview-material-${i}">${m.foto ? `<img src="${m.foto}" style="max-width:120px;border-radius:8px;">` : ''}</div>
+      </div>
+    `).join('');
+
+    materiais.forEach((m, i) => {
+      const inputNome = container.querySelector(`.campo-material-nome[data-i="${i}"]`);
+      if (inputNome) {
+        inputNome.value = m.nome || '';
+        inputNome.addEventListener('input', (e) => { materiais[i].nome = e.target.value; });
+      }
+      const inputFotoUrl = container.querySelector(`.campo-material-foto-url[data-i="${i}"]`);
+      if (inputFotoUrl) {
+        inputFotoUrl.addEventListener('input', (e) => {
+          materiais[i].fotoUrlExterna = e.target.value;
+          if (e.target.value) { materiais[i].foto = e.target.value; materiais[i].fotoArquivoPendente = null; }
+        });
+      }
+    });
+  }
+
+  async function atualizarFotoMaterial(i, file) {
+    if (!file) return;
+    const base64 = await AdminData.arquivoParaBase64(file);
+    const tipo = file.type || 'image/jpeg';
+    materiais[i].fotoArquivoPendente = { nome: file.name, tipo, base64 };
+    materiais[i].fotoUrlExterna = '';
+    document.getElementById(`preview-material-${i}`).innerHTML = `<img src="data:${tipo};base64,${base64}" style="max-width:120px;border-radius:8px;">`;
+  }
+
+  function adicionarMaterial() {
+    materiais.push({ nome: '', foto: '' });
+    renderizarMateriais();
+  }
+
+  function removerMaterial(i) {
+    materiais.splice(i, 1);
+    renderizarMateriais();
+  }
+
   async function carregarFormulario() {
     try {
       dadosCompletos = await AdminData.lerJSON('data/kits.json') || { kits: [] };
@@ -131,7 +200,8 @@
         document.getElementById('campo-faixa').value = kit.faixaEtaria || '';
         document.getElementById('campo-resumo').value = kit.resumoCurto || '';
         document.getElementById('campo-sobre').value = kit.sobre || '';
-        document.getElementById('campo-materiais').value = (kit.materiais || []).map(m => m.nome).join('\n');
+        document.getElementById('campo-video').value = kit.videoUrl || '';
+        materiais = JSON.parse(JSON.stringify(kit.materiais || []));
         if (kit.imagemCapa) {
           document.getElementById('campo-imagem-url').value = kit.imagemCapa;
           document.getElementById('preview-imagem').innerHTML = `<img src="${kit.imagemCapa}" style="max-width:200px;border-radius:8px;">`;
@@ -141,6 +211,7 @@
           if (chk) chk.checked = true;
         });
       }
+      renderizarMateriais();
     } catch (err) {
       AdminShell.mostrarToast('Erro ao carregar dados: ' + err.message, 'erro');
     }
@@ -156,9 +227,6 @@
       const slug = document.getElementById('campo-slug').value.trim();
       if (!slug) throw new Error('Informe um identificador de URL válido.');
 
-      const materiaisNomes = document.getElementById('campo-materiais').value
-        .split('\n').map(s => s.trim()).filter(Boolean);
-
       let imagemCapa = document.getElementById('campo-imagem-url').value.trim();
       const arquivosParaSalvar = [];
 
@@ -167,6 +235,22 @@
         const caminhoImagem = `images/kits/${slug}/capa.${extensao}`;
         arquivosParaSalvar.push({ caminho: caminhoImagem, conteudo: imagemBase64Pendente.base64, binario: true });
         imagemCapa = '/' + caminhoImagem;
+      }
+
+      // Processa a foto de cada material: se teve upload novo, grava o arquivo
+      // e resolve a URL final; senão mantém o link externo já preenchido.
+      const materiaisFinais = [];
+      for (let i = 0; i < materiais.length; i++) {
+        const m = materiais[i];
+        if (!m.nome || !m.nome.trim()) continue; // ignora linhas em branco
+        let fotoFinal = m.foto || '';
+        if (m.fotoArquivoPendente) {
+          const extensao = m.fotoArquivoPendente.nome.split('.').pop();
+          const caminhoFoto = `images/kits/${slug}/materiais/${gerarSlug(m.nome)}-${Date.now()}-${i}.${extensao}`;
+          arquivosParaSalvar.push({ caminho: caminhoFoto, conteudo: m.fotoArquivoPendente.base64, binario: true });
+          fotoFinal = '/' + caminhoFoto;
+        }
+        materiaisFinais.push({ nome: m.nome.trim(), foto: fotoFinal });
       }
 
       const recursos = Array.from(document.querySelectorAll('.chk-recurso:checked')).map(c => c.value);
@@ -182,7 +266,8 @@
         numeroExperimentos: kitExistente?.experimentos?.length || 0,
         recursos,
         sobre: document.getElementById('campo-sobre').value.trim(),
-        materiais: materiaisNomes.map(nome => ({ nome, temFoto: true, temInfo: true })),
+        videoUrl: document.getElementById('campo-video').value.trim(),
+        materiais: materiaisFinais,
         experimentos: kitExistente?.experimentos || []
       };
 

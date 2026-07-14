@@ -24,6 +24,38 @@ const CHIP_INFO = {
   manual:       { label: 'Manual PDF',   classe: 'chip-manual' }
 };
 
+/**
+ * Extrai o ID de um vídeo do YouTube a partir de vários formatos de link
+ * possíveis (link normal, link curto youtu.be, link já de embed, ou link
+ * com parâmetros extras de playlist/tempo) e devolve a URL de embed pronta
+ * para uso em <iframe>. Retorna null se não conseguir reconhecer um ID.
+ */
+function gerarEmbedYoutube(url) {
+  if (!url) return null;
+  const padroes = [
+    /(?:youtube\.com\/watch\?v=)([a-zA-Z0-9_-]{11})/,
+    /(?:youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/
+  ];
+  for (const padrao of padroes) {
+    const match = url.match(padrao);
+    if (match) return `https://www.youtube.com/embed/${match[1]}`;
+  }
+  return null;
+}
+
+function gerarBlocoVideo(videoUrl) {
+  const embedUrl = gerarEmbedYoutube(videoUrl);
+  if (!embedUrl) return '';
+  return `
+      <div class="video-wrapper">
+        <iframe src="${embedUrl}" title="Vídeo" frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen loading="lazy"></iframe>
+      </div>`;
+}
+
 function gerarPaginaKit(kit) {
   const listaExperimentosHtml = (kit.experimentos || [])
     .slice()
@@ -35,13 +67,19 @@ function gerarPaginaKit(kit) {
             </a>
           </li>`).join('');
 
-  const listaMateriaisHtml = (kit.materiais || []).map(m => `
+  const listaMateriaisHtml = (kit.materiais || []).map(m => {
+    const temFoto = !!m.foto;
+    const nomeEscapado = escapeHtml(m.nome);
+    const fotoEscapada = temFoto ? escapeHtml(m.foto) : '';
+    const abrirModal = temFoto ? `onclick="abrirFotoMaterial('${fotoEscapada.replace(/'/g, "\\'")}', '${nomeEscapado.replace(/'/g, "\\'")}')"` : '';
+    return `
         <div class="material-item">
-          <span>✦ ${escapeHtml(m.nome)}</span>
+          <span class="${temFoto ? 'material-nome-clicavel' : ''}" ${abrirModal}>✦ ${nomeEscapado}</span>
           <div class="material-actions">
-            ${m.temFoto ? '<button class="pill-btn">📷 Foto</button>' : ''}
+            ${temFoto ? `<button class="pill-btn" ${abrirModal}>📷 Foto</button>` : ''}
           </div>
-        </div>`).join('');
+        </div>`;
+  }).join('');
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -73,7 +111,11 @@ function gerarPaginaKit(kit) {
           <h3>ℹ️ Sobre este Kit</h3>
           <p>${escapeHtml(kit.sobre)}</p>
         </div>
-
+${kit.videoUrl && gerarEmbedYoutube(kit.videoUrl) ? `
+        <div class="info-panel" style="margin-bottom:28px;">
+          <h3>🎬 Vídeo de Apresentação</h3>${gerarBlocoVideo(kit.videoUrl)}
+        </div>
+` : ''}
         <div class="info-panel">
           <h3>🔬 O que você pode explorar com o kit:</h3>
           <ul class="experiment-list">${listaExperimentosHtml}</ul>
@@ -97,7 +139,32 @@ function gerarPaginaKit(kit) {
 
 <div id="site-footer"></div>
 
+<div id="modal-foto-material" class="modal-overlay" onclick="fecharFotoMaterial(event)">
+  <div class="modal-conteudo">
+    <button class="modal-fechar" onclick="fecharFotoMaterial()" aria-label="Fechar">✕</button>
+    <img id="modal-foto-imagem" src="" alt="">
+    <p id="modal-foto-legenda"></p>
+  </div>
+</div>
+
 <script src="../../js/layout.js"></script>
+<script>
+  function abrirFotoMaterial(url, nome) {
+    document.getElementById('modal-foto-imagem').src = url;
+    document.getElementById('modal-foto-imagem').alt = nome;
+    document.getElementById('modal-foto-legenda').textContent = nome;
+    document.getElementById('modal-foto-material').classList.add('aberto');
+    document.body.style.overflow = 'hidden';
+  }
+  function fecharFotoMaterial(event) {
+    if (event && event.target !== event.currentTarget && event.type === 'click' && !event.target.classList.contains('modal-fechar')) return;
+    document.getElementById('modal-foto-material').classList.remove('aberto');
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') fecharFotoMaterial();
+  });
+</script>
 </body>
 </html>
 `;
@@ -142,6 +209,7 @@ function gerarPaginaExperimento(kit, experimento) {
 </div>
 
 <div class="container content-blocks">
+${gerarBlocoVideo(experimento.videoUrl)}
 ${blocosHtml || '      <p style="color:#9ca3af;">Este experimento ainda não tem conteúdo publicado.</p>\n'}
 </div>
 
