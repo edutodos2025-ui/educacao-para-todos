@@ -192,7 +192,7 @@
     },
     {
       "id": "biologia-microscopico",
-      "titulo": "Kit Biologia - O mundo microscópico",
+      "titulo": "Kit Biologia",
       "slug": "biologia-mundo-microscopico",
       "resumoCurto": "Desenvolvido por cientistas renomados este kit foi projetado visando a suprir a carência de equipamentos de laboratório.",
       "imagemCapa": "/images/kits/biologia-mundo-microscopico/capa.png",
@@ -204,21 +204,19 @@
         "manual"
       ],
       "sobre": "Desenvolvido por cientistas renomados, este kit foi projetado visando suprir a carência de equipamentos de laboratório de biologia nas escolas.",
+      "videoUrl": "",
       "materiais": [
         {
           "nome": "Microscópio",
-          "temFoto": true,
-          "temInfo": true
+          "foto": ""
         },
         {
           "nome": "Lâminas",
-          "temFoto": true,
-          "temInfo": true
+          "foto": ""
         },
         {
           "nome": "Lamínulas",
-          "temFoto": true,
-          "temInfo": true
+          "foto": ""
         }
       ],
       "experimentos": [
