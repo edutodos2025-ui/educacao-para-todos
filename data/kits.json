@@ -235,6 +235,60 @@
           "blocos": []
         }
       ]
+    },
+    {
+      "id": "kit-cores-uma-fantastica-viagem-ao-mundo-das-cores-e-sensacoes",
+      "titulo": "Kit Cores – Uma fantástica viagem ao mundo das cores e sensações",
+      "slug": "kit-cores-uma-fantastica-viagem-ao-mundo-das-cores-e-sensacoes",
+      "resumoCurto": "Exploração da natureza da luz, cores primárias, síntese aditiva e subtrativa, além de ilusões ópticas.",
+      "imagemCapa": "/images/kits/kit-cores-uma-fantastica-viagem-ao-mundo-das-cores-e-sensacoes/capa.png",
+      "faixaEtaria": "",
+      "numeroExperimentos": 0,
+      "recursos": [
+        "materiais",
+        "experimentos",
+        "video",
+        "manual"
+      ],
+      "sobre": "Este kit revolucionário aborda a natureza fascinante da luz, explorando as cores primárias, a síntese aditiva e subtrativa, além de ilusões ópticas impressionantes e visão estereoscópica. A experiência permite compreender como a física da luz e a fisiologia da visão se combinam harmoniosamente para formar nossa percepção única de cores.",
+      "materiais": [
+        {
+          "nome": "Fontes de Luz ( Vermelha, Azul, Verde e Branca)",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Filtros de Luz",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Cartões de ilusão de óptica",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Gravura 3D",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Óculos 3d",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Pião - Disco de Newton",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Giz de Cera",
+          "temFoto": true,
+          "temInfo": true
+        }
+      ],
+      "experimentos": []
     }
   ]
 }
