@@ -8,16 +8,48 @@
       "imagemCapa": "/images/kits/arduino-gases/capa.jpg",
       "faixaEtaria": "Alunos acima de 12 anos",
       "numeroExperimentos": 5,
-      "recursos": ["materiais", "experimentos", "manual"],
+      "recursos": [
+        "materiais",
+        "experimentos",
+        "manual"
+      ],
       "sobre": "Este kit contém os principais componentes para aprender a programar e realizar experimentos simples com a plataforma Arduino.",
       "materiais": [
-        { "nome": "Placa Arduino Uno", "temFoto": true, "temInfo": true },
-        { "nome": "Cabo USB", "temFoto": true, "temInfo": true },
-        { "nome": "Jumper", "temFoto": true, "temInfo": true },
-        { "nome": "LEDs", "temFoto": true, "temInfo": true },
-        { "nome": "Resistores", "temFoto": true, "temInfo": true },
-        { "nome": "Sensor Infravermelho", "temFoto": true, "temInfo": true },
-        { "nome": "Sensor de Temperatura DS18B20", "temFoto": true, "temInfo": true }
+        {
+          "nome": "Placa Arduino Uno",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Cabo USB",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Jumper",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "LEDs",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Resistores",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Sensor Infravermelho",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Sensor de Temperatura DS18B20",
+          "temFoto": true,
+          "temInfo": true
+        }
       ],
       "experimentos": [
         {
@@ -54,30 +86,108 @@
       "imagemCapa": "/images/kits/astronomia/capa.jpg",
       "faixaEtaria": "Alunos acima de 12 anos",
       "numeroExperimentos": 15,
-      "recursos": ["materiais", "experimentos", "video", "manual"],
+      "recursos": [
+        "materiais",
+        "experimentos",
+        "video",
+        "manual"
+      ],
       "sobre": "Desenvolvido por cientistas renomados, este kit foi projetado visando suprir a carência de equipamentos de laboratório de astronomia nas escolas.",
       "materiais": [
-        { "nome": "Telescópio refrator", "temFoto": true, "temInfo": true },
-        { "nome": "Tripé", "temFoto": true, "temInfo": true },
-        { "nome": "Lentes oculares", "temFoto": true, "temInfo": true }
+        {
+          "nome": "Telescópio refrator",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Tripé",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Lentes oculares",
+          "temFoto": true,
+          "temInfo": true
+        }
       ],
       "experimentos": [
-        { "slug": "apresentacao-do-kit", "titulo": "Apresentação do kit", "ordem": 1, "blocos": [] },
-        { "slug": "historia-do-telescopio", "titulo": "História do Telescópio", "ordem": 2, "blocos": [] },
-        { "slug": "como-funciona-telescopio", "titulo": "Como funciona um telescópio", "ordem": 3, "blocos": [] },
-        { "slug": "montagem-do-telescopio", "titulo": "Montagem do telescópio", "ordem": 4, "blocos": [
-            { "tipo": "texto", "conteudo": "Antes de observar o céu, é preciso montar corretamente o telescópio. Siga os passos abaixo com atenção para garantir uma boa fixação e evitar danos às lentes." },
-            { "tipo": "titulo", "conteudo": "Passo 1 — Montando o tripé" },
-            { "tipo": "texto", "conteudo": "Abra as três pernas do tripé até a trava de segurança e nivele a base em uma superfície firme e plana." },
-            { "tipo": "titulo", "conteudo": "Passo 2 — Encaixando o tubo óptico" },
-            { "tipo": "texto", "conteudo": "Encaixe o tubo do telescópio no suporte do tripé e aperte os parafusos de fixação sem forçar demais." },
-            { "tipo": "titulo", "conteudo": "Passo 3 — Instalando a lente ocular" },
-            { "tipo": "texto", "conteudo": "Insira a lente ocular de menor aumento primeiro — ela facilita localizar o objeto antes de trocar para lentes de maior aumento." }
-        ] },
-        { "slug": "dicas-para-observacao", "titulo": "Dicas para observação", "ordem": 5, "blocos": [] },
-        { "slug": "observando-lua-e-sol", "titulo": "Observando Lua e Sol", "ordem": 6, "blocos": [] },
-        { "slug": "observando-planetas", "titulo": "Observando planetas", "ordem": 7, "blocos": [] },
-        { "slug": "observando-objetos-ceu-profundo", "titulo": "Observando objetos de céu profundo", "ordem": 8, "blocos": [] }
+        {
+          "slug": "apresentacao-do-kit",
+          "titulo": "Apresentação do kit",
+          "ordem": 1,
+          "blocos": []
+        },
+        {
+          "slug": "historia-do-telescopio",
+          "titulo": "História do Telescópio",
+          "ordem": 2,
+          "blocos": []
+        },
+        {
+          "slug": "como-funciona-telescopio",
+          "titulo": "Como funciona um telescópio",
+          "ordem": 3,
+          "blocos": []
+        },
+        {
+          "slug": "montagem-do-telescopio",
+          "titulo": "Montagem do telescópio",
+          "ordem": 4,
+          "blocos": [
+            {
+              "tipo": "texto",
+              "conteudo": "Antes de observar o céu, é preciso montar corretamente o telescópio. Siga os passos abaixo com atenção para garantir uma boa fixação e evitar danos às lentes."
+            },
+            {
+              "tipo": "titulo",
+              "conteudo": "Passo 1 — Montando o tripé"
+            },
+            {
+              "tipo": "texto",
+              "conteudo": "Abra as três pernas do tripé até a trava de segurança e nivele a base em uma superfície firme e plana."
+            },
+            {
+              "tipo": "titulo",
+              "conteudo": "Passo 2 — Encaixando o tubo óptico"
+            },
+            {
+              "tipo": "texto",
+              "conteudo": "Encaixe o tubo do telescópio no suporte do tripé e aperte os parafusos de fixação sem forçar demais."
+            },
+            {
+              "tipo": "titulo",
+              "conteudo": "Passo 3 — Instalando a lente ocular"
+            },
+            {
+              "tipo": "texto",
+              "conteudo": "Insira a lente ocular de menor aumento primeiro — ela facilita localizar o objeto antes de trocar para lentes de maior aumento."
+            }
+          ]
+        },
+        {
+          "slug": "dicas-para-observacao",
+          "titulo": "Dicas para observação",
+          "ordem": 5,
+          "blocos": []
+        },
+        {
+          "slug": "observando-lua-e-sol",
+          "titulo": "Observando Lua e Sol",
+          "ordem": 6,
+          "blocos": []
+        },
+        {
+          "slug": "observando-planetas",
+          "titulo": "Observando planetas",
+          "ordem": 7,
+          "blocos": []
+        },
+        {
+          "slug": "observando-objetos-ceu-profundo",
+          "titulo": "Observando objetos de céu profundo",
+          "ordem": 8,
+          "blocos": []
+        }
       ]
     },
     {
@@ -87,17 +197,43 @@
       "resumoCurto": "Desenvolvido por cientistas renomados este kit foi projetado visando a suprir a carência de equipamentos de laboratório.",
       "imagemCapa": "/images/kits/biologia/capa.jpg",
       "faixaEtaria": "Alunos acima de 12 anos",
-      "numeroExperimentos": 9,
-      "recursos": ["materiais", "experimentos", "manual"],
+      "numeroExperimentos": 2,
+      "recursos": [
+        "materiais",
+        "experimentos",
+        "manual"
+      ],
       "sobre": "Desenvolvido por cientistas renomados, este kit foi projetado visando suprir a carência de equipamentos de laboratório de biologia nas escolas.",
       "materiais": [
-        { "nome": "Microscópio", "temFoto": true, "temInfo": true },
-        { "nome": "Lâminas", "temFoto": true, "temInfo": true },
-        { "nome": "Lamínulas", "temFoto": true, "temInfo": true }
+        {
+          "nome": "Microscópio",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Lâminas",
+          "temFoto": true,
+          "temInfo": true
+        },
+        {
+          "nome": "Lamínulas",
+          "temFoto": true,
+          "temInfo": true
+        }
       ],
       "experimentos": [
-        { "slug": "apresentacao-do-kit", "titulo": "Apresentação do kit", "ordem": 1, "blocos": [] },
-        { "slug": "usando-o-microscopio", "titulo": "Usando o microscópio", "ordem": 2, "blocos": [] }
+        {
+          "slug": "apresentacao-do-kit",
+          "titulo": "Apresentação do kit",
+          "ordem": 1,
+          "blocos": []
+        },
+        {
+          "slug": "usando-o-microscopio",
+          "titulo": "Usando o microscópio",
+          "ordem": 2,
+          "blocos": []
+        }
       ]
     }
   ]
