@@ -48,7 +48,9 @@
       const grid = document.getElementById('kits-grid');
       grid.innerHTML = data.kits.map(kit => `
         <div class="kit-card">
-          <img src="${kit.imagemCapa}" alt="${kit.titulo}" onerror="this.src='https://placehold.co/400x260/7c3aed/ffffff?text=Kit'">
+          <a href="/kits/${kit.slug}/index.html">
+            <img src="${kit.imagemCapa}" alt="${kit.titulo}" onerror="this.src='https://placehold.co/400x260/7c3aed/ffffff?text=Kit'">
+          </a>
           <div class="kit-card-body">
             <h3><a href="/kits/${kit.slug}/index.html">${kit.titulo}</a></h3>
             <div class="kit-tags">

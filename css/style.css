@@ -279,6 +279,7 @@ img { max-width: 100%; display: block; }
   height: 170px;
   object-fit: cover;
   background: var(--cinza-claro);
+  cursor: pointer;
 }
 
 .kit-card-body { padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 10px; flex: 1; }

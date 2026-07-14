@@ -1,36 +1,13 @@
 {
   "nomeSite": "Aventuras na Ciência",
   "menu": [
-    {
-      "label": "Início",
-      "href": "/",
-      "ordem": 1,
-      "fixo": true
-    },
-    {
-      "label": "O Projeto",
-      "href": "/o-projeto.html",
-      "ordem": 2,
-      "fixo": true
-    },
-    {
-      "label": "Kits Educativos",
-      "href": "/kits.html",
-      "ordem": 3,
-      "fixo": true
-    },
-    {
-      "label": "Você Sabia?",
-      "href": "/voce-sabia.html",
-      "ordem": 6,
-      "fixo": false,
-      "blocos": [
-        {
-          "tipo": "texto",
-          "conteudo": "Curiosidades científicas para despertar ainda mais interesse pela ciência."
-        }
-      ]
-    }
+    { "label": "Início", "href": "/", "ordem": 1, "fixo": true },
+    { "label": "O Projeto", "href": "/o-projeto.html", "ordem": 2, "fixo": true },
+    { "label": "Kits Educativos", "href": "/kits.html", "ordem": 3, "fixo": true },
+    { "label": "Apoio Professor", "href": "/apoio-professor.html", "ordem": 4, "fixo": false, "blocos": [ { "tipo": "texto", "conteudo": "Recursos e materiais de apoio pensados para o dia a dia do professor em sala de aula." } ] },
+    { "label": "Apoio Aluno", "href": "/apoio-aluno.html", "ordem": 5, "fixo": false, "blocos": [ { "tipo": "texto", "conteudo": "Conteúdos de apoio para você, estudante, aprofundar o que aprendeu com os kits." } ] },
+    { "label": "Você Sabia?", "href": "/voce-sabia.html", "ordem": 6, "fixo": false, "blocos": [ { "tipo": "texto", "conteudo": "Curiosidades científicas para despertar ainda mais interesse pela ciência." } ] },
+    { "label": "Aprenda com seus colegas", "href": "/aprenda-com-colegas.html", "ordem": 7, "fixo": false, "blocos": [ { "tipo": "texto", "conteudo": "Um espaço para compartilhar descobertas e projetos entre estudantes." } ] }
   ],
   "home": {
     "heroTitulo": "Transformando a Educação Científica",
